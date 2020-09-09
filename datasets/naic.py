@@ -4,7 +4,7 @@ from collections import defaultdict
 
 
 class NAIC(BaseImageDataset):
-    def __init__(self, root='../data', verbose = True):
+    def __init__(self, root='/workspace/data', verbose = True):
         super(NAIC, self).__init__()
         self.dataset_dir = root
         self.dataset_dir_train = osp.join(self.dataset_dir, 'train')
@@ -27,7 +27,7 @@ class NAIC(BaseImageDataset):
 
 
     def _process_dir(self, data_dir, relabel=True):
-        filename = osp.join(data_dir, 'train_list.txt')
+        filename = osp.join(data_dir, 'label.txt')
         dataset = []
         camid = 1
         count_image=defaultdict(list)
@@ -36,7 +36,9 @@ class NAIC(BaseImageDataset):
                 lines = file_to_read.readline()
                 if not lines:
                     break
-                img_name,img_label = [i for i in lines.split()]
+                img_name,img_label = [i for i in lines.split(":")]
+                img_name = "images/" + img_name
+                img_label = img_label.strip("\n")
                 if img_name == 'train/105180993.png' or img_name=='train/829283568.png' or img_name=='train/943445997.png': # remove samples with wrong label
                     continue
                 count_image[img_label].append(img_name)
@@ -58,9 +60,9 @@ class NAIC(BaseImageDataset):
 
     def _process_dir_test(self, data_dir, query=True):
         if query:
-            subfix = 'query_a'
+            subfix = 'query'
         else:
-            subfix = 'gallery_a'
+            subfix = 'gallery'
 
         datatype = ['green', 'normal']
         for index, type in enumerate(datatype):
